@@ -11,6 +11,8 @@ import { useRouter, useNavigation } from "expo-router";
 
 const Index = () => {
   const navigation = useNavigation();
+  const router = useRouter();
+
   const handleRegister = () => {
     Alert.alert("Register pressed!");
   };
@@ -20,8 +22,6 @@ const Index = () => {
       headerShown: false,
     });
   }, []);
-
-  const router = useRouter();
 
   return (
     <View style={styles.container}>

@@ -10,13 +10,12 @@ import {
 import { useRouter, useNavigation } from "expo-router";
 
 const Index = () => {
-  
-  const handleLogin = () => {
-    router.push("/screen/dashboard/dashboard")
-  };
-
   const router = useRouter();
   const navigation = useNavigation();
+
+  const handleLogin = () => {
+    router.push("/screen/dashboard/dashboard");
+  };
 
   useEffect(() => {
     navigation.setOptions({
