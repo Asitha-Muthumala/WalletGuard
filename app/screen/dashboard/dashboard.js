@@ -1,68 +1,116 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
+import React, { useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import { useNavigation, useRouter } from "expo-router";
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 const Dashboard = () => {
+
+  const navigation = useNavigation();
+  const router = useRouter();
+
+  // Mock transaction data
+  const transactions = [
+    { id: '1', title: 'Grocery Shopping', amount: '-$50', date: '2024-10-10' },
+    { id: '2', title: 'Salary', amount: '+$2000', date: '2024-10-09' },
+    { id: '3', title: 'Utility Bill', amount: '-$100', date: '2024-10-08' },
+    { id: '4', title: 'Gym Membership', amount: '-$30', date: '2024-10-07' },
+    { id: '5', title: 'Freelance Work', amount: '+$400', date: '2024-10-05' },
+    { id: '6', title: 'Freelance Work', amount: '+$400', date: '2024-10-05' },
+    { id: '7', title: 'Freelance Work', amount: '+$400', date: '2024-10-05' },
+    { id: '8', title: 'Freelance Work', amount: '+$400', date: '2024-10-05' },
+  ];
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, []);
+
+  // Transaction item component
+  const TransactionItem = ({ item }) => (
+    <View style={styles.transactionItem}>
+      <Text style={styles.transactionTitle}>{item.title}</Text>
+      <Text style={item.amount.startsWith('+') ? styles.transactionAmountIncome : styles.transactionAmountExpense}>
+        {item.amount}
+      </Text>
+      <Text style={styles.transactionDate}>{item.date}</Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.time}>00:10</Text>
-        <MaterialIcons name="account-balance-wallet" size={30} color="black" style={styles.appIcon} />
-        <Text style={styles.battery}>63%</Text>
-      </View>
-
-      <View style={styles.welcomeSection}>
-        <Text style={styles.welcomeText}>Welcomes</Text>
-        <Text style={styles.userName}>Kalana Mi</Text>
-      </View>
-
-      <View style={styles.balanceSection}>
-        <Text style={styles.balanceText}>Total Balance</Text>
-        <Text style={styles.balanceAmount}>5,000.00</Text>
-      </View>
-
-      <View style={styles.incomeExpenseSection}>
-        <View style={styles.incomeSection}>
-          <Text style={styles.incomeLabel}>Income</Text>
-          <Text style={styles.incomeAmount}>4,500.00</Text>
-          <MaterialIcons name="arrow-upward" size={20} color="green" style={styles.upArrow} />
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        <View style={{ display: 'flex', flexDirection: 'row' }}>
+          <MaterialIcon name="person" size={30} color="white" />
+          <Text style={{ marginTop: 10, fontWeight: 'bold', marginStart: 10, color: '#fff' }}>Asitha Muthumala</Text>
         </View>
-        <View style={styles.expenseSection}>
-          <Text style={styles.expenseLabel}>Expense</Text>
-          <Text style={styles.expenseAmount}>1,500.00</Text>
-          <MaterialIcons name="arrow-downward" size={20} color="red" style={styles.downArrow} />
-        </View>
+        <MaterialIcon name="settings" size={30} color="white" />
       </View>
 
-      <View style={styles.transactionsSection}>
-        <Text style={styles.transactionsTitle}>Transactions</Text>
-        <TouchableOpacity style={styles.viewAllButton}>
-          <Text style={styles.viewAllButtonText}>View All</Text>
-        </TouchableOpacity>
-        <View style={styles.transactionItem}>
-          <MaterialIcons name="fastfood" size={30} color="black" style={styles.transactionIcon} />
-          <Text style={styles.transactionLabel}>Food</Text>
-          <Text style={styles.transactionAmount}>-45</Text>
-          <Text style={styles.transactionDate}>Today</Text>
-        </View>
-        <View style={styles.transactionItem}>
-          <MaterialIcons name="shopping-cart" size={30} color="black" style={styles.transactionIcon} />
-          <Text style={styles.transactionLabel}>Shopping</Text>
-          <Text style={styles.transactionAmount}>-48</Text>
-          <Text style={styles.transactionDate}>Today</Text>
+      {/* Card */}
+      <View style={styles.cardContainer}>
+        <View style={styles.card}>
+          <View style={styles.cardTop}>
+            <Text style={styles.cardTopHeader}>Total Balance</Text>
+          </View>
+
+          <View style={styles.cardMiddle}>
+            <Text style={styles.cardMiddleHeader}>5000.00</Text>
+          </View>
+
+          <View style={styles.cardBottom}>
+            <View style={styles.cardBottomLeft}>
+              <View>
+                <MaterialIcon style={{ color: '#ed6b4e' }} name="keyboard-arrow-up" size={50} />
+              </View>
+              <View>
+                <Text style={{ color: '#fff' }}>Expense</Text>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>1500.00</Text>
+              </View>
+            </View>
+
+            <View style={styles.cardBottomRight}>
+              <View>
+                <MaterialIcon style={{ color: '#46e353' }} name="keyboard-arrow-down" size={50} />
+              </View>
+              <View>
+                <Text style={{ color: '#fff' }}>Income</Text>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>4500.00</Text>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
 
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonLabel}>+</Text>
-      </TouchableOpacity>
+      {/* Transaction List */}
+      <View style={styles.historyContainer}>
+        <Text style={styles.historyTitle}>Recent History</Text>
+        <FlatList
+          data={transactions}
+          keyExtractor={item => item.id}
+          renderItem={TransactionItem}
+          contentContainerStyle={styles.transactionList}
+        />
+      </View>
 
+      {/* Bottom Navigation */}
       <View style={styles.bottomNavigation}>
-        <TouchableOpacity style={styles.bottomNavItem}>
-          <MaterialIcons name="home" size={25} color="black" style={styles.bottomNavIcon} />
+        <TouchableOpacity style={styles.navButton}>
+          <MaterialIcon name="home" size={28} color="#fff" />
+          <Text style={styles.navButtonText}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomNavItem}>
-          <MaterialIcons name="show-chart" size={25} color="black" style={styles.bottomNavIcon} />
+        <TouchableOpacity style={styles.navButton}>
+          <MaterialIcon name="history" size={28} color="#fff" />
+          <Text style={styles.navButtonText}>Transactions</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/screen/profile/profile")} style={styles.navButton}>
+          <MaterialIcon name="person" size={28} color="#fff" />
+          <Text style={styles.navButtonText}>Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton}>
+          <MaterialIcon name="settings" size={28} color="#fff" />
+          <Text style={styles.navButtonText}>Settings</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -74,160 +122,127 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  // Header styles
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#f0f0f0",
+  headerContainer: {
+    height: '10%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 20,
+    paddingEnd: 20,
+    paddingStart: 20,
+    backgroundColor: '#2158bf',
   },
-  time: {
-    fontSize: 16,
-    fontWeight: "bold",
+  cardContainer: {
+    height: '25%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  appIcon: {
-    width: 30,
-    height: 30,
+  card: {
+    height: '90%',
+    width: '90%',
+    backgroundColor: '#6ba3ed',
+    borderRadius: 15,
   },
-  battery: {
-    fontSize: 16,
+  cardTop: {
+    height: '30%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-
-  // Welcome section styles
-  welcomeSection: {
-    alignItems: "center",
-    marginTop: 20,
-  },
-  welcomeText: {
+  cardTopHeader: {
     fontSize: 20,
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
   },
-  userName: {
+  cardMiddle: {
+    height: '30%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardMiddleHeader: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  cardBottom: {
+    height: '40%',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  cardBottomLeft: {
+    width: '50%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingStart: 20,
+  },
+  cardBottomRight: {
+    width: '50%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingRight: 35,
+  },
+  historyContainer: {
+    height: '57%',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  historyTitle: {
     fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
-
-  // Balance section styles
-  balanceSection: {
-    alignItems: "center",
-    marginTop: 20,
-  },
-  balanceText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  balanceAmount: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-
-  // Income and expense section styles
-  incomeExpenseSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  incomeSection: {
-    alignItems: "center",
-  },
-  expenseSection: {
-    alignItems: "center",
-  },
-  incomeLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  expenseLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  incomeAmount: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "green",
-  },
-  expenseAmount: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "red",
-  },
-  upArrow: {
-    marginTop: 5,
-  },
-  downArrow: {
-    marginTop: 5,
-  },
-
-  // Transactions section styles
-  transactionsSection: {
-    marginTop: 20,
-  },
-  transactionsTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  viewAllButton: {
-    backgroundColor: "#f0f0f0",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  viewAllButtonText: {
-    fontSize: 16,
+  transactionList: {
+    paddingBottom: 20,
   },
   transactionItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 10,
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  transactionIcon: {
-    width: 30,
-    height: 30,
-  },
-  transactionLabel: {
+  transactionTitle: {
     fontSize: 16,
+    fontWeight: 'bold',
   },
-  transactionAmount: {
+  transactionAmountIncome: {
     fontSize: 16,
-    color: "red",
+    fontWeight: 'bold',
+    color: '#46e353',
+  },
+  transactionAmountExpense: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ed6b4e',
   },
   transactionDate: {
     fontSize: 14,
-    color: "gray",
+    color: '#888',
   },
-
-  // Add button styles
-  addButton: {
-    backgroundColor: "#007bff",
-    borderRadius: 50,
-    width: 50,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-  },
-  addButtonLabel: {
-    fontSize: 24,
-    color: "white",
-  },
-
-  // Bottom navigation styles
   bottomNavigation: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#f0f0f0",
+    height: '8%',
+    backgroundColor: '#2158bf',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
-  bottomNavItem: {
-    alignItems: "center",
+  navButton: {
+    alignItems: 'center',
   },
-  bottomNavIcon: {
-    width: 25,
-    height: 25,
+  navButtonText: {
+    color: '#fff',
+    fontSize: 10,
+    marginTop: 5,
+    fontWeight: 'bold'
   },
 });
 
