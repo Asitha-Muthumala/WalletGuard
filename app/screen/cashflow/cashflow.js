@@ -15,15 +15,20 @@ import { TabView, SceneMap } from "react-native-tab-view";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
-import { ADD_ASSET, BASE_URL } from "../../../constants/const";
+import {
+  ADD_ASSET,
+  BASE_URL,
+  GET_INCOME_EXPENSE,
+} from "../../../constants/const";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 
 const Add = () => {
   const [cashFlowValue, setCashFlowValue] = React.useState("Income");
   const [expenseType, setExpenseType] = React.useState("Food");
   const [incomeType, setIncomeType] = React.useState("Salary");
   const [date, setDate] = useState(new Date());
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
 
   const [showPicker, setShowPicker] = useState(false);
 
@@ -48,61 +53,56 @@ const Add = () => {
 
   const formatDate = (date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
-  const onSubmit = async() => {
-
+  const onSubmit = async () => {
     const payload = {
       amount: amount,
       date: date,
       assetType: cashFlowValue,
-      type: incomeType,
+      type: cashFlowValue == "Income" ? incomeType : expenseType,
       description: description,
-      userId: 1
+      userId: 1,
     };
 
     try {
-
       const response = await fetch(`${BASE_URL}${ADD_ASSET}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
         const responseData = await response.json();
-        Alert.alert('Success', responseData.message);
+        Alert.alert("Success", responseData.message);
         onClear();
       } else {
         const errorData = await response.json();
         console.error(errorData.message);
-        Alert.alert('Error', errorData.message);
+        Alert.alert("Error", errorData.message);
       }
-
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Server error.')
+      Alert.alert("Error", "Server error.");
     }
-    
-  }
+  };
 
   const onClear = () => {
-    setCashFlowValue("Income")
+    setCashFlowValue("Income");
     setExpenseType("Food");
     setIncomeType("Salary");
     setDate(new Date());
-    setAmount('');
-    setDescription('');
-  }
+    setAmount("");
+    setDescription("");
+  };
 
   return (
     <View style={styles.container}>
-
       <Text
         style={{
           marginBottom: 5,
@@ -230,7 +230,7 @@ const Add = () => {
               borderRadius: 5,
             }}
             placeholder="Select Date"
-            value={formatDate(date)} // Use the formatted date here
+            value={formatDate(date)}
             editable={false}
             pointerEvents="none"
           />
@@ -245,7 +245,11 @@ const Add = () => {
         )}
       </View>
 
-      <Text style={{ fontSize: 12, fontWeight: "400", textTransform: "uppercase" }}>Amount</Text>
+      <Text
+        style={{ fontSize: 12, fontWeight: "400", textTransform: "uppercase" }}
+      >
+        Amount
+      </Text>
       <TextInput
         style={styles.input}
         placeholder="Amount"
@@ -254,65 +258,103 @@ const Add = () => {
         onChangeText={setAmount}
       />
 
-      <Text style={{ fontSize: 12, fontWeight: "400", textTransform: "uppercase" }}>Description</Text>
-      <TextInput style={styles.input} placeholder="Description" value={description} onChangeText={setDescription} />
+      <Text
+        style={{ fontSize: 12, fontWeight: "400", textTransform: "uppercase" }}
+      >
+        Description
+      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Description"
+        value={description}
+        onChangeText={setDescription}
+      />
 
-      <View style={{ paddingTop: 10, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+      <View
+        style={{
+          paddingTop: 10,
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
         <TouchableOpacity
           style={{
             width: 150,
             padding: 10,
-            backgroundColor: 'red',
-            alignItems: 'center',
+            backgroundColor: "red",
+            alignItems: "center",
             marginVertical: 5,
             borderRadius: 5,
           }}
           onPress={onClear}
         >
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>Clear</Text>
+          <Text style={{ color: "white", fontWeight: "bold" }}>Clear</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={{
             width: 150,
             padding: 10,
-            backgroundColor: 'blue',
-            alignItems: 'center',
+            backgroundColor: "blue",
+            alignItems: "center",
             marginVertical: 5,
             borderRadius: 5,
           }}
           onPress={onSubmit}
         >
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>Add</Text>
+          <Text style={{ color: "white", fontWeight: "bold" }}>Add</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
 
-const IncomeAndExpenses = ({ expenses, deleteExpense, filter, setFilter }) => {
-  const filteredExpenses = expenses.filter((expense) =>
-    expense.name.toLowerCase().includes(filter.toLowerCase())
-  );
+const IncomeAndExpenses = () => {
+  const [incomeExpenseList, setIncomeExpenseList] = React.useState([]);
+
+  const getIncomeExpenses = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}${GET_INCOME_EXPENSE}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        setIncomeExpenseList(responseData.data);
+      } else {
+        const errorData = await response.json();
+        console.error(errorData.message);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Data fetching error.");
+    }
+  };
+
+  React.useEffect(() => {
+    getIncomeExpenses();
+  }, []);
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Filter expenses"
-        value={filter}
-        onChangeText={setFilter}
-      />
+      <TextInput style={styles.input} placeholder="Filter expenses" />
+
       <FlatList
-        data={filteredExpenses}
+        data={incomeExpenseList}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.expenseItem}>
             <Text>
-              {item.name}: ${item.amount}
+              {item.type} : {item.amount} LKR
             </Text>
-            <Button title="Delete" onPress={() => deleteExpense(item.id)} />
+            <Text>{item.date.slice(0,10)}</Text>
+            <TouchableOpacity>
+              <MaterialIcon name="delete" size={24} color="red" />
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -322,44 +364,18 @@ const IncomeAndExpenses = ({ expenses, deleteExpense, filter, setFilter }) => {
 
 export default function CashFlow() {
   const layout = useWindowDimensions();
-
   const [index, setIndex] = React.useState(0);
+  const navigation = useNavigation();
+
   const [routes] = React.useState([
     { key: "incomeExpense", title: "Income & Expense" },
     { key: "add", title: "Add" },
   ]);
 
-  const [expenses, setExpenses] = React.useState([
-    { id: "1", name: "Groceries", amount: 50 },
-    { id: "2", name: "Rent", amount: 500 },
-    { id: "3", name: "Utility Bills", amount: 100 },
-  ]);
-
-  const [filter, setFilter] = React.useState("");
-
-  const addExpense = (newExpense) => {
-    setExpenses((prevExpenses) => [...prevExpenses, newExpense]);
-  };
-
-  const deleteExpense = (id) => {
-    setExpenses((prevExpenses) =>
-      prevExpenses.filter((expense) => expense.id !== id)
-    );
-  };
-
   const renderScene = SceneMap({
-    incomeExpense: () => (
-      <IncomeAndExpenses
-        expenses={expenses}
-        deleteExpense={deleteExpense}
-        filter={filter}
-        setFilter={setFilter}
-      />
-    ),
+    incomeExpense: () => <IncomeAndExpenses />,
     add: () => <Add />,
   });
-
-  const navigation = useNavigation();
 
   React.useEffect(() => {
     navigation.setOptions({

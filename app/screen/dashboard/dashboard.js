@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
 } from "react-native";
 import { useNavigation, useRouter } from "expo-router";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import { BASE_URL, GET_DASHBOARD_DATA } from "../../../constants/const";
 
 const Dashboard = () => {
   const navigation = useNavigation();
   const router = useRouter();
 
-  // Mock transaction data
   const transactions = [
     { id: "1", title: "Grocery Shopping", amount: "-$50", date: "2024-10-10" },
     { id: "2", title: "Salary", amount: "+$2000", date: "2024-10-09" },
@@ -25,26 +25,55 @@ const Dashboard = () => {
     { id: "8", title: "Freelance Work", amount: "+$400", date: "2024-10-05" },
   ];
 
+  const [dashboardData, setDashboardData] = useState([]);
+  const [expenses, setExpenses] = useState('');
+  const [incomes, setIncomes] = useState('');
+
+  const getDashboardData = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}${GET_DASHBOARD_DATA}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        setIncomes(responseData.income);
+        setExpenses(responseData.expense);
+        setDashboardData(responseData.data);
+      } else {
+        const errorData = await response.json();
+        console.error(errorData.message);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Data fetching error.");
+    }
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
+    getDashboardData();
   }, []);
 
   // Transaction item component
   const TransactionItem = ({ item }) => (
     <View style={styles.transactionItem}>
-      <Text style={styles.transactionTitle}>{item.title}</Text>
-      <Text
-        style={
-          item.amount.startsWith("+")
-            ? styles.transactionAmountIncome
-            : styles.transactionAmountExpense
-        }
-      >
-        {item.amount}
-      </Text>
-      <Text style={styles.transactionDate}>{item.date}</Text>
+      <Text style={styles.transactionTitle}>{item.type}</Text>
+      {item.assetType === 'Expense' ? (
+        <Text style={styles.transactionAmountExpense}>
+          {item.amount} LKR
+        </Text>
+      ) : (
+        <Text style={styles.transactionAmountIncome}>
+          {item.amount} LKR
+        </Text>
+      )}
+      <Text style={styles.transactionDate}>{item.date.slice(0, 10)}</Text>
     </View>
   );
 
@@ -76,7 +105,7 @@ const Dashboard = () => {
           </View>
 
           <View style={styles.cardMiddle}>
-            <Text style={styles.cardMiddleHeader}>5000.00</Text>
+            <Text style={styles.cardMiddleHeader}>{incomes + expenses}.00</Text>
           </View>
 
           <View style={styles.cardBottom}>
@@ -91,7 +120,7 @@ const Dashboard = () => {
               <View>
                 <Text style={{ color: "#fff" }}>Expense</Text>
                 <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                  1500.00
+                  {expenses}.00
                 </Text>
               </View>
             </View>
@@ -107,7 +136,7 @@ const Dashboard = () => {
               <View>
                 <Text style={{ color: "#fff" }}>Income</Text>
                 <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                  4500.00
+                  {incomes}.00
                 </Text>
               </View>
             </View>
@@ -117,9 +146,12 @@ const Dashboard = () => {
 
       {/* Transaction List */}
       <View style={styles.historyContainer}>
-        <Text style={styles.historyTitle}>Recent History</Text>
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text style={styles.historyTitle}>Recent History</Text>
+          <Text style={{ color: '#0394fc', fontWeight: 500, fontSize: 14 }}>See More</Text>
+        </View>
         <FlatList
-          data={transactions}
+          data={dashboardData}
           keyExtractor={(item) => item.id}
           renderItem={TransactionItem}
           contentContainerStyle={styles.transactionList}
@@ -252,15 +284,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  transactionAmountIncome: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#46e353",
-  },
   transactionAmountExpense: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#ed6b4e",
+    color: "red",
+  },
+  transactionAmountIncome: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "green",
   },
   transactionDate: {
     fontSize: 14,
