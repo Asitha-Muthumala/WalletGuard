@@ -81,7 +81,7 @@ const Dashboard = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerContainer}>
-        <View style={{ display: "flex", flexDirection: "row" }}>
+        <View style={{ flexDirection: "row" }}>
           <MaterialIcon name="person" size={30} color="white" />
           <Text
             style={{
@@ -94,7 +94,9 @@ const Dashboard = () => {
             Asitha Muthumala
           </Text>
         </View>
-        <MaterialIcon name="settings" size={30} color="white" />
+        <TouchableOpacity onPress={() => router.push("/screen/setting/setting")}>
+          <MaterialIcon name="settings" size={30} color="white" />
+        </TouchableOpacity>
       </View>
 
       {/* Card */}
