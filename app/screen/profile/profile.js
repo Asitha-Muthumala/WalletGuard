@@ -1,4 +1,4 @@
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
   View,
@@ -12,6 +12,7 @@ import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 
 const Profile = () => {
   const navigation = useNavigation();
+  const router = useRouter();
 
   useEffect(() => {
     navigation.setOptions({
@@ -36,6 +37,7 @@ const Profile = () => {
         text: "OK",
         onPress: () => {
           console.log("Logged out");
+          router.push("/auth/sign-in");
         },
       },
     ]);

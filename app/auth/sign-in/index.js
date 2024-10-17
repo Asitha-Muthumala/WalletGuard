@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,48 @@ import {
   Alert,
 } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
+import { BASE_URL, LOGIN } from "../../../constants/const";
 
 const Index = () => {
   const router = useRouter();
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    router.push("/screen/dashboard/dashboard");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    const payload = {
+      email: email,
+      password: password
+    };
+
+    try {
+      const response = await fetch(`${BASE_URL}${LOGIN}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        clearLogin();
+        router.push("/screen/dashboard/dashboard");
+      } else {
+        const errorData = await response.json();
+        console.error(errorData.message);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Server error.");
+    }
   };
 
+  const clearLogin = () => {
+    setEmail('');
+    setPassword('');
+  }
   useEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -26,15 +59,14 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        keyboardType="email-address"
-      />
-      <TextInput style={styles.input} placeholder="Password" secureTextEntry />
+
+      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
+      <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
+
       <TouchableOpacity onPress={() => router.push("auth/sign-up")}>
         <Text style={styles.link}>Don't have an account? Register</Text>
       </TouchableOpacity>
