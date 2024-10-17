@@ -178,9 +178,9 @@ const Dashboard = () => {
           <MaterialIcon name="person" size={28} color="#fff" />
           <Text style={styles.navButtonText}>Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <MaterialIcon name="settings" size={28} color="#fff" />
-          <Text style={styles.navButtonText}>Settings</Text>
+        <TouchableOpacity onPress={() => router.push("/screen/static/static")} style={styles.navButton}>
+          <MaterialIcon name="show-chart" size={28} color="#fff" />
+          <Text style={styles.navButtonText}>analytics</Text>
         </TouchableOpacity>
       </View>
     </View>

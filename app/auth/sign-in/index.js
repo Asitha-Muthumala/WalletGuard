@@ -23,27 +23,28 @@ const Index = () => {
       password: password
     };
 
-    try {
-      const response = await fetch(`${BASE_URL}${LOGIN}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    // try {
+    //   const response = await fetch(`${BASE_URL}${LOGIN}`, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(payload),
+    //   });
 
-      if (response.ok) {
-        const responseData = await response.json();
-        clearLogin();
-        router.push("/screen/dashboard/dashboard");
-      } else {
-        const errorData = await response.json();
-        console.error(errorData.message);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Server error.");
-    }
+    //   if (response.ok) {
+    //     const responseData = await response.json();
+    //     clearLogin();
+    //     router.push("/screen/dashboard/dashboard");
+    //   } else {
+    //     const errorData = await response.json();
+    //     console.error(errorData.message);
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   Alert.alert("Error", "Server error.");
+    // }
+    router.push("/screen/dashboard/dashboard");
   };
 
   const clearLogin = () => {
